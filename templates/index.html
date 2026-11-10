@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Educational forward-chaining rule-based symptom pattern demonstration.">
+  <title>Clarity | Cold & Flu Rule-Based Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="/"><span class="brand-mark">✳</span> clarity<span class="brand-dot">.</span></a>
+    <span class="nav-tag">RULE-BASED EXPERT SYSTEM</span>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="hero-pill"><span class="pulse"></span> FORWARD-CHAINING DEMONSTRATION</div>
+      <h1>Understand your<br><em>symptom patterns.</em></h1>
+      <p class="hero-copy">Select symptoms and see how an expert system applies IF–THEN rules, derives new facts, and records every rule that fires.</p>
+      <div class="hero-note"><span>✦</span> A learning experience in artificial intelligence · Not a medical diagnosis</div>
+    </section>
+
+    <section class="workspace">
+      <div class="form-card">
+        <div class="section-top">
+          <div>
+            <div class="step-label">STEP 01</div>
+            <h2>What are the symptoms?</h2>
+            <p class="muted">Choose every symptom you want the expert system to evaluate.</p>
+          </div>
+          <div class="count-bubble" id="count">{{ selected|length }}<small>selected</small></div>
+        </div>
+
+        <form method="POST" id="symptom-form">
+          <div class="symptom-grid">
+            {% for key, label in symptoms %}
+            <label class="symptom-option">
+              <input type="checkbox" name="symptoms" value="{{ key }}"
+                {% if key in selected %}checked{% endif %}>
+              <span class="checkmark">✓</span>
+              <span class="symptom-name">{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <div class="form-actions">
+            <button class="primary-btn" type="submit">Run symptom analysis <span>↗</span></button>
+            <a class="reset-link" href="/">Reset selection</a>
+          </div>
+        </form>
+      </div>
+
+      <aside class="side-card">
+        <div class="side-icon">⌁</div>
+        <h3>How it works</h3>
+        <ol class="how-list">
+          <li><b>Facts</b><span>Your selected symptoms become initial facts.</span></li>
+          <li><b>Rules</b><span>The engine checks each IF–THEN condition.</span></li>
+          <li><b>Inference</b><span>Matching rules add new facts to the knowledge base.</span></li>
+          <li><b>Trace</b><span>Every fired rule is recorded for inspection.</span></li>
+        </ol>
+        <div class="side-foot">The engine repeats until no new rule can fire.</div>
+      </aside>
+    </section>
+
+    {% if report %}
+    <section class="results" id="results">
+      <div class="results-heading">
+        <div>
+          <div class="step-label">STEP 02 · ANALYSIS COMPLETE</div>
+          <h2>Your analysis report</h2>
+        </div>
+        <span class="status-chip">● Process completed</span>
+      </div>
+
+      <div class="result-banner {{ report.category }}">
+        <div class="result-symbol">
+          {% if report.category == "flu" %}↗{% elif report.category == "cold" %}❋{% elif report.category == "mixed" %}◇{% else %}?{% endif %}
+        </div>
+        <div>
+          <div class="result-kicker">RULE-BASED OUTPUT</div>
+          <h3>{{ report.result }}</h3>
+          <p>{{ report.detail }}</p>
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-card">
+          <div class="step-label">RULE EXECUTION TRACE</div>
+          <h3>Rules fired <span class="trace-count">{{ report.trace|length }}</span></h3>
+          {% if report.trace %}
+          <div class="trace-list">
+            {% for rule in report.trace %}
+            <article class="trace-row">
+              <div class="rule-badge">{{ rule.id }}</div>
+              <div class="trace-content">
+                <strong>{{ rule.reason }}</strong>
+                <div class="rule-logic"><span>IF</span> {{ rule.conditions|join(" AND ") }}<br><span>THEN</span> {{ rule.conclusion }}</div>
+              </div>
+              <span class="fired-label">FIRED</span>
+            </article>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="empty-state">No rules fired for these selected symptoms.</p>
+          {% endif %}
+        </div>
+
+        <div class="report-card facts-card">
+          <div class="step-label">WORKING MEMORY</div>
+          <h3>Facts after inference</h3>
+          <p class="muted small">Initial symptoms and newly inferred facts.</p>
+          <div class="fact-tags">
+            {% for fact in report.facts %}
+            <span class="{% if fact not in report.input_facts %}inferred{% endif %}">{{ fact.replace("_", " ") }}</span>
+            {% endfor %}
+          </div>
+          <div class="legend"><i></i> Newly inferred fact</div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+  </main>
+
+  <footer>
+    <div class="footer-brand">clarity<span>.</span></div>
+    <p>Academic demonstration of a forward-chaining rule-based system.</p>
+    <p class="disclaimer">This tool cannot diagnose or rule out illness. Cold and flu symptoms overlap. Seek advice from a qualified healthcare professional for medical concerns.</p>
+  </footer>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
